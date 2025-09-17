@@ -4,13 +4,22 @@ import ProductCard from "../components/ProductCard";
 export default function Home() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
-    const mockResults = [
-      { title: "Samsung 50\" TV", price: "$999", image: "https://via.placeholder.com/150", link: "#" },
-      { title: "LG 50\" TV", price: "$950", image: "https://via.placeholder.com/150", link: "#" }
-    ];
-    setResults(mockResults);
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      });
+      const data = await res.json();
+      setResults(data);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
   };
 
   return (
@@ -26,6 +35,8 @@ export default function Home() {
       <button onClick={handleSearch} style={{ padding: "10px", marginLeft: "10px" }}>
         ابحث
       </button>
+
+      {loading && <p>جاري البحث...</p>}
 
       <div style={{ marginTop: "20px" }}>
         {results.map((product, idx) => (
